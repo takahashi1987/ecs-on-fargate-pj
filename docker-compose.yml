@@ -7,12 +7,33 @@ services:
     command: ash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     volumes:
        - .:/myapp # カレントディレクトリをバインドマウントしている。開発環境用の設定だとおもう
+       - public-data:/myapp/public # railsとwebpackerでpublic-dataでボリュームを共有
     ports:
       - "3000:3000"
     env_file:
       - .env
     depends_on:
       - db
+    environment:
+      WEBPACKER_DEV_SERVER_HOST: webpacker
+
+  webpacker:
+    build: .
+    container_name: webpacker
+    volumes:
+      - .:/myapp
+
+      # Dockerfileの中でyarn installした際に作成される/node_modulesをコンテナで利用するためです(ボリューム指定しないと削除されてしまいます)
+      # このボリュームを指定することでcommand: webpack-dev-serverを/node_modulesから利用することができます。
+      - /myapp/node_modules
+      - public-data:/myapp/public # ボリュームマウント
+    command: ./bin/webpack-dev-server
+    environment:
+      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
+
+    ports:
+      - "3035:3035"
+
   db:
     image: mysql:8.0.27
     container_name: db
@@ -26,3 +47,7 @@ services:
 
 volumes:
   db:
+    driver: local  # 規定では local。S3 に変更することもできる
+  bundle: #このボリュームはどこで使用されている？おそらく不要だった→volumesの不要だったものを削除(bundleは不要だったので消しておきます)
+    driver: local
+  public-data:

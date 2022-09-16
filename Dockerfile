@@ -3,6 +3,12 @@
 # Alpineにapkというパッケージマネージャーがあり、軽量と便利さのバランスがAlpineの採用に繋がっていると思っています。
 FROM ruby:alpine3.13
 
+ARG UID
+
+# コンテナ側で生成されたファイルがroot権限で作成されたりするとlocal側での取り扱いがめんどくさい。（sudoしないとファイルを削除できなかったり）
+# ローカル側のUID, GIDとコンテナ側でのUID, GIDを揃えられるようにDockerfileやdocker-composeを用意しておくと、このあたりがスムーズに行くようになる
+RUN adduser -D app -u ${UID:-1000}
+
 # RUN イメージをビルドすときにコマンドを実行する
 RUN apk update \
       && apk add --no-cache gcc make libc-dev g++ mariadb-dev tzdata nodejs~=14 yarn
@@ -28,7 +34,7 @@ RUN chmod +x /usr/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 
 # 通信を想定するポート
-EXPOSE 3000
+# EXPOSE 3000
 
 # コンテナ起動時に実行する既定のコマンド
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+# CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
