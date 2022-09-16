@@ -3,7 +3,7 @@ services:
   rails:
     build: .
     container_name: rails
-    command: bundle exec puma -C config/puma.rb
+    command: bundle exec puma -C config/puma.rb -e production # Productionモードで起動
     volumes:
       - .:/myapp
       - public-data:/myapp/public
@@ -20,18 +20,22 @@ services:
     environment:
       WEBPACKER_DEV_SERVER_HOST: webpacker
 
-  webpacker:
-    build: .
-    volumes:
-      - .:/myapp
-      - /myapp/node_modules
-      - public-data:/myapp/public
-    command: ./bin/webpack-dev-server
-    environment:
-      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
-    ports:
-      - "3035:3035"
+    # Railsをrootユーザーで起動(コンテナが作成したファイルを編集することがないのでrootにする(compile時のエラー対策))
     user: root
+
+  # Webpackerは本番では利用しません。WebpackerはJavascriptやCSSをコードを書いてくれたらすぐにコンパイルして読み込んでくれる用途で利用しています。
+  # webpacker:
+  #   build: .
+  #   volumes:
+  #     - .:/myapp
+  #     - /myapp/node_modules
+  #     - public-data:/myapp/public
+  #   command: ./bin/webpack-dev-server
+  #   environment:
+  #     WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
+  #   ports:
+  #     - "3035:3035"
+  #   user: root
 
   db:
     image: mysql:8.0.27
@@ -58,8 +62,9 @@ services:
 volumes:
   db:
     driver: local
-  bundle:
-    driver: local
+  # bundleは不要だったので消しておきます
+  # bundle:
+  #   driver: local
   public-data:
   tmp-data:
   log-data:
