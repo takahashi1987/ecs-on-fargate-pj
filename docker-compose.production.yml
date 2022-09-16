@@ -1,9 +1,12 @@
 version: "3.9"
 services:
   rails:
-    build: .
+    # build: .
+    build:
+      context: .
+      target: production
     container_name: rails
-    command: bundle exec puma -C config/puma.rb
+    # command: bundle exec puma -C config/puma.rb
     volumes:
       - .:/myapp
       - public-data:/myapp/public
@@ -18,20 +21,23 @@ services:
     depends_on:
       - db
     environment:
-      WEBPACKER_DEV_SERVER_HOST: webpacker
+      # WEBPACKER_DEV_SERVER_HOST: webpacker
+      DB_DATABASE: ecs-on-fargate-pj-db
+      DB_HOST: db
+      DB_USERNAME: root
 
-  webpacker:
-    build: .
-    volumes:
-      - .:/myapp
-      - /myapp/node_modules
-      - public-data:/myapp/public
-    command: ./bin/webpack-dev-server
-    environment:
-      WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
-    ports:
-      - "3035:3035"
-    user: root
+  # webpacker:
+  #   build: .
+  #   volumes:
+  #     - .:/myapp
+  #     - /myapp/node_modules
+  #     - public-data:/myapp/public
+  #   command: ./bin/webpack-dev-server
+  #   environment:
+  #     WEBPACKER_DEV_SERVER_HOST: 0.0.0.0
+  #   ports:
+  #     - "3035:3035"
+  #   user: root
 
   db:
     image: mysql:8.0.27
@@ -57,8 +63,6 @@ services:
 
 volumes:
   db:
-    driver: local
-  bundle:
     driver: local
   public-data:
   tmp-data:
