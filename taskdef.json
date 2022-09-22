@@ -43,7 +43,7 @@
 		},
 		{
 			"name": "nginx",
-			"image": "385154029426.dkr.ecr.ap-northeast-1.amazonaws.com/sample-nginx",
+			"image": "385154029426.dkr.ecr.ap-northeast-1.amazonaws.com/ecs-on-fargate-pj-nginx",
 			"portMappings": [
 				{
 					"hostPort": 80,
