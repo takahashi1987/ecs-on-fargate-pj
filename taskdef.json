@@ -1,5 +1,5 @@
 {
-	"family": "sample-ecs",
+	"family": "ecs-on-fargate-pj-task-def",
 	"cpu": "256",
 	"memory": "512",
 	"networkMode": "awsvpc",
