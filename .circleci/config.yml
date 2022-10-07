@@ -3,13 +3,21 @@ orbs:
   aws-ecr: circleci/aws-ecr@7.3.0
   aws-ecs: circleci/aws-ecs@2.0.0
 workflows:
+  # Railsのデプロイ
   rails-deploy:
     jobs:
       - aws-ecr/build-and-push-image:
           # ECRに実在するリポジトリ名(任意名称は不可)
           repo: ecs-on-fargate-pj-rails
-          # イメージ生成のもとになるDockerfile
+          # イメージ生成のもとになるDockerfile(デフォルトはカレントディレクトリのパス)
           dockerfile: Dockerfile
+          # account-url: AWS_ECR_ACCOUNT_URL
+          # region: AWS_REGION
+          # aws-access-key-id: AWS_ACCESS_KEY_ID
+          # aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          # ECRにリポジトリがなかったら創るか？
+          # create-repo: true
+
           tag: "${CIRCLE_SHA1}"
           filters:
             branches:
@@ -25,6 +33,43 @@ workflows:
           service-name: 'ecs-on-fargate-pj-service'
           # containerはタスク定義で設定したコンテナ名にする
           container-image-name-updates: "container=rails,tag=${CIRCLE_SHA1}"
+
+
+
+
+
+  # rails-deploy:
+  #   jobs:
+  #     - aws-ecr/build-and-push-image:
+  #         # ECRに実在するリポジトリ名(任意名称は不可)
+  #         repo: ecs-on-fargate-pj-rails
+  #         # イメージ生成のもとになるDockerfile
+  #         dockerfile: Dockerfile
+  #         account-url: AWS_ECR_ACCOUNT_URL
+  #         region: AWS_REGION
+  #         aws-access-key-id: AWS_ACCESS_KEY_ID
+  #         aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+  #         # ECRにリポジトリがなかったら創るか？
+  #         create-repo: true
+  #         dockerfile: ./Dockerfile
+  #         # ECRのリポジトリ
+  #         repo: ecs-on-fargate-pj-rails
+  #         tag: "${CIRCLE_SHA1}"
+  #         filters:
+  #           branches:
+  #             only: main
+  #     - aws-ecs/deploy-service-update:
+  #         requires:
+  #           - aws-ecr/build-and-push-image
+  #         # ECSのタスク定義名
+  #         family: 'ecs-on-fargate-pj-task-def'
+  #         # ECSのクラスター名かARNのフルパス
+  #         cluster-name: 'ecs-on-fargate-pj-cluster'
+  #         # サービス名
+  #         service-name: 'ecs-on-fargate-pj-service'
+  #         # containerはタスク定義で設定したコンテナ名にする
+  #         container-image-name-updates: "container=rails,tag=${CIRCLE_SHA1}"
+
 
 
 
@@ -73,35 +118,3 @@ workflows:
 #           # containerはタスク定義で設定したコンテナ名にする
 #           container-image-name-updates: "container=nginx,tag=${CIRCLE_SHA1}"
 
-  # Railsのデプロイ
-#   rails-deploy:
-#     jobs:
-#       - aws-ecr/build-and-push-image:
-#           # ECRに実在するリポジトリ名(任意名称は不可)
-#           repo: ecs-on-fargate-pj-rails
-#           # イメージ生成のもとになるDockerfile
-#           dockerfile: Dockerfile
-# #           account-url: AWS_ECR_ACCOUNT_URL
-# #           region: AWS_REGION
-# #           aws-access-key-id: AWS_ACCESS_KEY_ID
-# #           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-# #           # ECRにリポジトリがなかったら創るか？
-# #           create-repo: true
-# #           dockerfile: ./Dockerfile
-# #           # ECRのリポジトリ
-# #           repo: ecs-on-fargate-pj-rails
-#           tag: "${CIRCLE_SHA1}"
-#           filters:
-#             branches:
-#               only: main
-#       - aws-ecs/deploy-service-update:
-#           requires:
-#             - aws-ecr/build-and-push-image
-#           # ECSのタスク定義名
-#           family: 'ecs-on-fargate-pj-task-def'
-#           # ECSのクラスター名かARNのフルパス
-#           cluster-name: 'ecs-on-fargate-pj-cluster'
-#           # サービス名
-#           service-name: 'ecs-on-fargate-pj-service'
-#           # containerはタスク定義で設定したコンテナ名にする
-#           container-image-name-updates: "container=rails,tag=${CIRCLE_SHA1}"
