@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@7.3.0
+  aws-ecs: circleci/aws-ecs@2.0.0
 workflows:
   rails-deploy:
     jobs:
@@ -13,6 +14,23 @@ workflows:
           filters:
             branches:
               only: main
+      - aws-ecs/deploy-service-update:
+          requires:
+            - aws-ecr/build-and-push-image
+          # ECSのタスク定義名
+          family: 'ecs-on-fargate-pj-task-def'
+          # ECSのクラスター名かARNのフルパス
+          cluster-name: 'ecs-on-fargate-pj-cluster'
+          # サービス名
+          service-name: 'ecs-on-fargate-pj-service'
+          # containerはタスク定義で設定したコンテナ名にする
+          container-image-name-updates: "container=rails,tag=${CIRCLE_SHA1}"
+
+
+
+
+
+
 
 
 
